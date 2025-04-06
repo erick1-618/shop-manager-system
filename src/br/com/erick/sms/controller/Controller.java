@@ -1,6 +1,8 @@
 package br.com.erick.sms.controller;
 
 import br.com.erick.sms.model.Produto;
+import br.com.erick.sms.model.Compra;
+import br.com.erick.sms.model.Item;
 
 import java.sql.*;
 
@@ -8,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Controller{
     
@@ -39,59 +43,71 @@ public class Controller{
         
         this.cc = new ConnectionController(props.getProperty("user"), props.getProperty("pwk"), url);
 
-        initializeDataBase(); 
-    }
-
-    private void initializeDataBase(){
-
-        Connection conn = this.cc.open();
+        this.cc.initializeDatabase();
 
         System.out.println("First connection UP");
-
-        String produtoInitializer = "CREATE TABLE IF NOT EXISTS produto ( id serial primary key, name varchar(100) not null, unit_value real not null, sales_quantity integer default 0);";
-
-        String compraInitializer = "CREATE TABLE IF NOT EXISTS compra (id serial primary key, date timestamp not null, total real);";            
-
-        String itemInitializer = "CREATE TABLE IF NOT EXISTS item ( compra_id integer, produto_id integer, quantity integer not null, primary key(compra_id, produto_id), foreign key(compra_id) references compra(id), foreign key(produto_id) references produto(id));";
-
-        try{
-            Statement stmt = conn.createStatement();
-            stmt.execute(produtoInitializer);
-            stmt.execute(compraInitializer);
-            stmt.execute(itemInitializer);
-
-            System.out.println("Schema initializer UP");
-        }catch(SQLException e){
-            System.err.println("Could not initialize the database");        
-        }finally{
-            this.cc.close();        
-        }        
     }
 
-    public void addNewProduct(Produto p){
-        String sql = "INSERT INTO produto (name, unit_value) values (?, ?);";
+    public void restart(){
+        this.cc.restartDatabase();
+    }        
+
+    public void addNewProduct(String name, double value){
+        Produto p = new Produto(name, value);
+        this.cc.addNewProduct(p);        
+    }
+    
+    public void addCompra(Compra c){
+        this.cc.addCompra(c);    
+    }
         
-        Connection c = this.cc.open();
+    public void addItem(Compra c, Item i){
+        this.cc.addItem(c, i);
+    }
 
-        try{
-            PreparedStatement stmt = c.prepareStatement(sql);
-            stmt.setDouble(2, p.getUnitValue());    
-            stmt.setString(1, p.getName());
-            stmt.execute();
-        }catch(Exception e){
-            System.err.println("Could not add the new product");        
-            e.printStackTrace();        
-        }finally{
-            this.cc.close();        
+    public void updateQuantity(Produto p){
+        this.cc.updateQuantity(p);    
+    }
+
+    public List<String> getAllProducts(){
+        List<String> products = new ArrayList<>();
+
+        List<Produto> prodQ = this.cc.getProducts();
+
+        String line;
+
+        if(prodQ == null) return products;
+        
+        for(Produto p : prodQ){
+             line = "";
+             line += p.getName() + "|";
+             line += p.getUnitValue() + "|"; 
+             line += p.getId();
+             products.add(line);
         }
-}        
 
+        return products;
+    }
+
+    // General tests;
     public static void main(String [] args){
 
         Controller c = Controller.getInstance();
 
-        Produto p = new Produto("ABC", 1.0);
+        c.restart();
 
-        c.addNewProduct(p);    
+        Produto p = new Produto("ABC", 2.0);
+    
+        Item i = new Item(p, 12);
+
+        ArrayList<Item> list = new ArrayList<>();
+
+        list.add(i);
+
+        Compra comp = new Compra(list);
+
+        c.addNewProduct("Produto A", 15);
+
+        c.addCompra(comp); 
     }
 }
