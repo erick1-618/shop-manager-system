@@ -1,47 +1,44 @@
 package br.com.erick.sms.model;
 
-import java.util.UUID;
-
 public class Produto {
-    
-    private String name;
 
-    private double unitValue;
+	private String name;
 
-    private int salesQuantity;
+	private double unitValue;
 
-    private String id;
+	private int salesQuantity;
 
-    public Produto(String name, double unitValue, int salesQuantity, String id){
-        this.id = id;
-        this.name = name;
-        this.unitValue = unitValue;
-        this.salesQuantity = salesQuantity;
-    }
+	private long id;
 
-    public Produto(String name, double unitValue){
-        this.id = UUID.randomUUID().toString();
-        this.name = name;
-        this.unitValue = unitValue;
-    }
+	public Produto(String name, double unitValue, int salesQuantity, long id) {
+		this.id = id;
+		this.name = name;
+		this.unitValue = unitValue;
+		this.salesQuantity = salesQuantity;
+	}
 
-    public String getName(){
-        return this.name;
-    }
+	public Produto(String name, double unitValue) {
+		this.name = name;
+		this.unitValue = unitValue;
+	}
 
-    public double getUnitValue(){
-        return this.unitValue;    
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public int getSalesQuantity(){
-        return this.salesQuantity;
-    }
+	public double getUnitValue() {
+		return this.unitValue;
+	}
 
-    public void setSalesQuantity(int qt){
-        this.salesQuantity = qt;    
-    }
-    
-    public String getId(){
-        return this.id.toString();
-    }
+	public int getSalesQuantity() {
+		return this.salesQuantity;
+	}
+
+	public void setSalesQuantity(int qt) {
+		this.salesQuantity = qt;
+	}
+
+	public long getId() {
+		return this.id;
+	}
 }
