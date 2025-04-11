@@ -44,6 +44,12 @@ public class Compra {
 		}
 		this.timestamp = date;
 	}
+	
+	public Compra(double total, long id, String date) {
+		this.id = id;
+		this.total = total;
+		this.timestamp = date;
+	}
 
 	public void setId(long id) {
 		this.id = id;
