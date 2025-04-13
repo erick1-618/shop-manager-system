@@ -30,6 +30,9 @@ public class Application {
 		if (option == "6")
 			return;
 		switch (option) {
+		case "0":
+			commands();
+			break;
 		case "1":
 			addNewProduct();
 			break;
@@ -120,11 +123,15 @@ public class Application {
 	}
 
 	private static void fmsg() {
-		System.out.println("\n---------------SHOP MANAGER SYSTEM-----------------\n"
-				+ "v0.1 by Erick Andrade                   psql for db\n"
-				+ "\n[1] - Add new product   [2] - Add product to the cart   [3] - Remove product of the cart"
-				+ "\n[4] - See the cart    [5] - Close the cart            [6] - Clear the cart"
-				+ "\n[7] - See all products 	[8] - See all sales	 [9] - See sale details"
+		System.out.println("\n---------------SHOP MANAGER SYSTEM-----------------\n" + 
+				"v0.1 by Erick Andrade                   psql for db\n");
+		commands();
+	}
+
+	private static void commands() {
+		System.out.println("\n[0] - Help	\n[1] - Add new product   \n[2] - Add product to the cart   \n[3] - Remove product of the cart"
+				+ "\n[4] - See the cart    \n[5] - Close the cart            \n[6] - Clear the cart"
+				+ "\n[7] - See all products 	\n[8] - See all sales	 \n[9] - See sale details"
 				+ "\n[10 - Exit");
 	}
 }

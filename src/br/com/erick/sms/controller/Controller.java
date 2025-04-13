@@ -2,6 +2,8 @@ package br.com.erick.sms.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -79,10 +81,10 @@ public class Controller {
 		}
 		return cartStr;
 	}
-	
+
 	public double getCartTotal() {
 		double sum = 0;
-		for(Item i : cart) {
+		for (Item i : cart) {
 			sum += i.getQuantity() * i.getProduto().getUnitValue();
 		}
 		return sum;
@@ -145,10 +147,10 @@ public class Controller {
 
 		cart.clear();
 	}
-	
+
 	public void clearCart() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 // ================== PRODUCTS
@@ -195,7 +197,7 @@ public class Controller {
 	public void addCompra(Compra c) {
 		this.ss.addCompra(c);
 	}
-	
+
 	public List<String> getAllSales() {
 		List<String> sales = new ArrayList<>();
 
@@ -213,10 +215,18 @@ public class Controller {
 
 		return sales;
 	}
-	
+
 	public String getSaleDet(String id) {
 		Compra c = ss.getSaleById(Integer.parseInt(id));
-		return c.getTimestamp() + c.getItens().get(0).getProduto().getName() + c.getItens().get(0).getQuantity();
+		String date = c.getTimestamp().substring(0, 10).replace('-', '/');
+		String sale = "";
+		sale += "Sale " + c.getId() + " realized in: " + date + "\n-------------------- ITENS -----------------------";
+		for (Item i : c.getItens()) {
+			sale += "\n" + String.format("%-40s | R$ %-20.2f | %-10d", i.getProduto().getName(),
+					i.getProduto().getUnitValue() * i.getQuantity(), i.getQuantity());
+		}
+		sale += "\n=====TOTAL: R$ " + String.format("%.2f", c.getTotal());
+		return sale;
 	}
 
 //================================ ITEM
@@ -226,7 +236,6 @@ public class Controller {
 		updateQuantity(i.getProduto());
 	}
 
-	
 	private void interConnectServices() {
 		this.is.setPS(ps);
 		this.is.setSS(ss);
@@ -236,7 +245,6 @@ public class Controller {
 		this.ss.setPS(ps);
 	}
 
-	
 	// General tests;
 	public static void main(String[] args) {
 
