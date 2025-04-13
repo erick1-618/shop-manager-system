@@ -57,4 +57,4 @@ For running the application:
 
 ## License
 
-This project is under GLP License
+This project is under GLPv3 License
