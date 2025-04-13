@@ -14,8 +14,11 @@ echo "Setting the database properties"
 echo "Obs: app will use the default postgres port [5432]"
 
 read -p "User's name: " usr
-read -p "User's password: " psk
+read -s -p "User's password: " psk
+echo 
 read -p "Set the database name: " dbn
+
+mkdir -p resources
 
 echo "user=$usr" > resources/config.properties
 echo "pwk=$psk" >> resources/config.properties
