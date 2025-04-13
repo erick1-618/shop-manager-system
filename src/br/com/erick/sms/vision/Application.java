@@ -124,7 +124,7 @@ public class Application {
 
 	private static void fmsg() {
 		System.out.println("\n---------------SHOP MANAGER SYSTEM-----------------\n" + 
-				"v0.1 by Erick Andrade                   psql for db\n");
+				"v0.2 by Erick Andrade                   psql for db\n");
 		commands();
 	}
 
