@@ -2,6 +2,8 @@
 
 **Shop Manager System** is a Java application designed to help manage a store, providing features such as product management, inventory control, and sales processing. The project contais a suport for Postgres 16 connection, providing a scalable solution for a large amount of data.
 
+**Shop Manager System** it's a improved and complete rewrite of [Simple Item Manager](https://github.com/erick1-618/simple-item-manager)
+
 ## Features
 
 - Product registration
