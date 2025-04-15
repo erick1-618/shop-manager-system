@@ -1,6 +1,6 @@
 package br.com.erick.sms.model;
 
-public class Produto {
+public class Product {
 
 	private String name;
 
@@ -10,14 +10,14 @@ public class Produto {
 
 	private long id;
 
-	public Produto(String name, double unitValue, int salesQuantity, long id) {
+	public Product(String name, double unitValue, int salesQuantity, long id) {
 		this.id = id;
 		this.name = name;
 		this.unitValue = unitValue;
 		this.salesQuantity = salesQuantity;
 	}
 
-	public Produto(String name, double unitValue) {
+	public Product(String name, double unitValue) {
 		this.name = name;
 		this.unitValue = unitValue;
 	}

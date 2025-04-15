@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import br.com.erick.sms.model.Compra;
+import br.com.erick.sms.model.Sale;
 import br.com.erick.sms.model.Item;
-import br.com.erick.sms.model.Produto;
+import br.com.erick.sms.model.Product;
 import br.com.erick.sms.service.ItemService;
-import br.com.erick.sms.service.ProdutoService;
+import br.com.erick.sms.service.ProductService;
 import br.com.erick.sms.service.SaleService;
 import br.com.erick.sms.utils.DBConnection;
 import br.com.erick.sms.utils.DataExamples;
@@ -21,7 +21,7 @@ public class Controller {
 
 	private static Controller instance;
 
-	private ProdutoService ps;
+	private ProductService ps;
 
 	private ItemService is;
 
@@ -46,7 +46,7 @@ public class Controller {
 
 		this.dbc = new DBConnection(props.getProperty("user"), props.getProperty("pwk"), url);
 
-		this.ps = new ProdutoService(dbc);
+		this.ps = new ProductService(dbc);
 
 		this.is = new ItemService(dbc);
 
@@ -57,37 +57,13 @@ public class Controller {
 		System.out.println("[ INFO ] Services initialized");
 
 		this.cart = new ArrayList<>();
-
-		System.out.println("[ INFO ] Cart initialized");
 	}
 
 	public static Controller getInstance() {
 		if (instance == null) {
 			return new Controller();
 		}
-
 		return instance;
-	}
-
-	public int getCartQt() {
-		return cart.size();
-	}
-
-	public List<String> getCart() {
-		List<String> cartStr = new ArrayList<>();
-		for (int i = 0; i < cart.size(); i++) {
-			cartStr.add(String.format("%-5d | %-50s | R$ %12.2f | %-5d", i, cart.get(i).getProduto().getName(),
-					cart.get(i).getProduto().getUnitValue(), cart.get(i).getQuantity()));
-		}
-		return cartStr;
-	}
-
-	public double getCartTotal() {
-		double sum = 0;
-		for (Item i : cart) {
-			sum += i.getQuantity() * i.getProduto().getUnitValue();
-		}
-		return sum;
 	}
 
 	public void restartDB() {
@@ -99,24 +75,56 @@ public class Controller {
 		System.out.println("[ INFO ] Connection with DB closed");
 	}
 
+//---------------------------- CART
+
+	public int getCartQt() {
+		return cart.size();
+	}
+
+	public List<String> getCart() {
+		List<String> cartStr = new ArrayList<>();
+
+		if (cart.isEmpty()) {
+			cartStr.add("The cart is empty.");
+		}
+
+		for (int i = 0; i < cart.size(); i++) {
+			cartStr.add(String.format("%-5d | %-50s | R$ %12.2f | %-5d", i, cart.get(i).getProduto().getName(),
+					cart.get(i).getProduto().getUnitValue(), cart.get(i).getQuantity()));
+		}
+
+		return cartStr;
+	}
+
+	public double getCartTotal() {
+		double sum = 0;
+		for (Item i : cart) {
+			sum += i.getQuantity() * i.getProduto().getUnitValue();
+		}
+		return sum;
+	}
+
 	public void addToCart(String id, String qt) {
 
 		try {
 
 			long prodID = Long.parseLong(id);
 
-			Produto p = ps.selectProdutoById(prodID);
+			Product p = ps.selectProdutoById(prodID);
+
+			int qtprod = Integer.parseInt(qt);
 
 			if (p == null)
 				throw new NullPointerException();
 
-			int qtprod = Integer.parseInt(qt);
+			if (qtprod <= 0)
+				throw new NumberFormatException();
 
 			this.cart.add(new Item(p, qtprod));
 
 		} catch (NumberFormatException | NullPointerException e) {
 			if (e instanceof NullPointerException)
-				System.err.println("Product with id: " + id + " doesn't exists");
+				System.err.println("There's no product with id " + id);
 			else if (e instanceof NumberFormatException)
 				System.err.println("Invalid quantity values");
 		}
@@ -136,21 +144,21 @@ public class Controller {
 	}
 
 	public void closeCart() {
+
 		if (cart.isEmpty()) {
-			System.err.println("The cart is empty");
+			System.out.println("The cart is empty");
 			return;
 		}
 
-		Compra c = new Compra(cart);
+		Sale c = new Sale(cart);
 
-		ss.addCompra(c);
+		ss.addSale(c);
 
 		cart.clear();
 	}
 
 	public void clearCart() {
-		// TODO Auto-generated method stub
-
+		this.cart.clear();
 	}
 
 // ================== PRODUCTS
@@ -158,83 +166,90 @@ public class Controller {
 	public void addNewProduct(String name, String value) {
 
 		try {
+
 			double v = Double.parseDouble(value.replace(',', '.'));
 
-			if (name == null)
-				throw new RuntimeException("Name is null");
+			if (!name.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 ]*$") || v <= 0 || name.length() > 50)
+				throw new RuntimeException();
 
-			Produto p = new Produto(name, v);
+			Product p = new Product(name, v);
 			this.ps.addNewProduct(p);
+
 		} catch (RuntimeException e) {
-			System.err.println("Error -> Name must be not null and alphanumeric, and product value must be decimal");
+			System.err.println(
+					"Error -> Name must be not null and alphanumeric, " + "\nstarting with a letter, and product value"
+							+ "\nmust be decimal positive. Product max lenght is 100");
 		}
 	}
 
 	public List<String> getAllProducts() {
 		List<String> products = new ArrayList<>();
 
-		List<Produto> prodQ = this.ps.getProducts();
+		List<Product> prodQ = this.ps.getProducts();
 
 		String line;
 
 		if (prodQ == null)
 			return products;
 
-		for (Produto p : prodQ) {
+		for (Product p : prodQ) {
 			line = String.format("%-5s | %-50s | R$ %12.2f", p.getId(), p.getName(), p.getUnitValue());
 			products.add(line);
 		}
 
-		return products;
-	}
+		if (products.isEmpty())
+			products.add("There's no product registered");
 
-	public void updateQuantity(Produto p) {
-		this.ps.updateQuantity(p);
+		return products;
 	}
 
 //================================ SALES
 
-	public void addCompra(Compra c) {
-		this.ss.addCompra(c);
-	}
-
 	public List<String> getAllSales() {
 		List<String> sales = new ArrayList<>();
 
-		List<Compra> salesQ = this.ss.getAllSales();
+		List<Sale> salesQ = this.ss.getAllSales();
 
 		String line;
 
 		if (salesQ == null)
 			return sales;
 
-		for (Compra c : salesQ) {
-			line = String.format("%-5d | %-50s | R$ %12.2f", c.getId(), c.getTimestamp(), c.getTotal());
+		for (Sale c : salesQ) {
+			line = String.format("%-5d | %-25s | R$ %12.2f", c.getId(),
+					c.getTimestamp().substring(0, 10).replace('-', '/'), c.getTotal());
 			sales.add(line);
 		}
+
+		if (sales.isEmpty())
+			sales.add("There's no sale registered");
 
 		return sales;
 	}
 
 	public String getSaleDet(String id) {
-		Compra c = ss.getSaleById(Integer.parseInt(id));
-		String date = c.getTimestamp().substring(0, 10).replace('-', '/');
 		String sale = "";
-		sale += "Sale " + c.getId() + " realized in: " + date + "\n-------------------- ITENS -----------------------";
-		for (Item i : c.getItens()) {
-			sale += "\n" + String.format("%-40s | R$ %-20.2f | %-10d", i.getProduto().getName(),
-					i.getProduto().getUnitValue() * i.getQuantity(), i.getQuantity());
+		try {
+			Sale c = ss.getSaleById(Integer.parseInt(id));
+			if (c == null)
+				throw new RuntimeException();
+			String date = c.getTimestamp().substring(0, 10).replace('-', '/');
+			sale += "Sale " + c.getId() + " realized in: " + date
+					+ "\n-------------------- ITENS -----------------------";
+			for (Item i : c.getItens()) {
+				sale += "\n" + String.format("%-40s | R$ %-20.2f | %-10d", i.getProduto().getName(),
+						i.getProduto().getUnitValue() * i.getQuantity(), i.getQuantity());
+			}
+			sale += "\n=====TOTAL: R$ " + String.format("%.2f", c.getTotal());
+		} catch (RuntimeException e) {
+			System.err.println("Enter a valid id");
 		}
-		sale += "\n=====TOTAL: R$ " + String.format("%.2f", c.getTotal());
 		return sale;
 	}
 
-//================================ ITEM
-
-	public void addItem(Compra c, Item i) {
-		this.is.addItem(c, i);
-		updateQuantity(i.getProduto());
-	}
+	/**
+	 * I have no proud in this
+	 */
 
 	private void interConnectServices() {
 		this.is.setPS(ps);
@@ -243,33 +258,5 @@ public class Controller {
 		this.ps.setSS(ss);
 		this.ss.setIS(is);
 		this.ss.setPS(ps);
-	}
-
-	// General tests;
-	public static void main(String[] args) {
-
-		Controller c = Controller.getInstance();
-
-		c.restartDB();
-
-		List<Produto> prods = DataExamples.productExamples();
-
-		prods.forEach(p -> c.addNewProduct(p.getName(), "" + p.getUnitValue()));
-		System.out.println("Example products added");
-
-//
-//		Produto p = new Produto("ABC", 2.0);
-//
-//		Item i = new Item(p, 12);
-//
-//		ArrayList<Item> list = new ArrayList<>();
-//
-//		list.add(i);
-//
-//		Compra comp = new Compra(list);
-//
-//		c.addNewProduct("Produto A", 15);
-//
-//		c.addCompra(comp);
 	}
 }

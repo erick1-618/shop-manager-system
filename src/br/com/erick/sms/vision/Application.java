@@ -31,33 +31,43 @@ public class Application {
 			return;
 		switch (option) {
 		case "0":
+			System.out.print("\033[H\033[2J");
 			commands();
 			break;
 		case "1":
+			System.out.print("\033[H\033[2J");
 			addNewProduct();
 			break;
 		case "2":
+			System.out.print("\033[H\033[2J");
 			addToCart();
 			break;
 		case "3":
+			System.out.print("\033[H\033[2J");
 			removeFromCart();
 			break;
 		case "4":
+			System.out.print("\033[H\033[2J");
 			cartList();
 			break;
 		case "5":
+			System.out.print("\033[H\033[2J");
 			control.closeCart();
 			break;
 		case "6":
+			System.out.print("\033[H\033[2J");
 			control.clearCart();
 			break;
 		case "7":
+			System.out.print("\033[H\033[2J");
 			prodList();
 			break;
 		case "8":
+			System.out.print("\033[H\033[2J");
 			salesList();
 			break;
 		case "9":
+			System.out.print("\033[H\033[2J");
 			saleDetails();
 			break;
 		default:
@@ -123,15 +133,16 @@ public class Application {
 	}
 
 	private static void fmsg() {
-		System.out.println("\n---------------SHOP MANAGER SYSTEM-----------------\n" + 
-				"v0.2 by Erick Andrade                   psql for db\n");
-		commands();
+		System.out.println("\n>>>>>>>> SHOP MANAGER SYSTEM"
+				+ "\n\nA simple solution for store products information and register sales!\n" + 
+				"\nv0.2 by Erick Andrade\n"
+				+ "\n>> Type 0 for help\n");
 	}
 
 	private static void commands() {
 		System.out.println("\n[0] - Help	\n[1] - Add new product   \n[2] - Add product to the cart   \n[3] - Remove product of the cart"
 				+ "\n[4] - See the cart    \n[5] - Close the cart            \n[6] - Clear the cart"
 				+ "\n[7] - See all products 	\n[8] - See all sales	 \n[9] - See sale details"
-				+ "\n[10 - Exit");
+				+ "\n[10] - Exit");
 	}
 }

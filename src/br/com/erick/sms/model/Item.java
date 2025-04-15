@@ -1,16 +1,16 @@
 package br.com.erick.sms.model;
 
 public class Item {
-	private Produto produto;
+	private Product product;
 	private int quantity;
 
-	public Item(Produto produto, int quantity) {
-		this.produto = produto;
+	public Item(Product produto, int quantity) {
+		this.product = produto;
 		this.quantity = quantity;
 	}
 
-	public Produto getProduto() {
-		return this.produto;
+	public Product getProduto() {
+		return this.product;
 	}
 
 	public int getQuantity() {

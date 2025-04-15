@@ -1,27 +1,27 @@
 package br.com.erick.sms.service;
 
-import br.com.erick.sms.model.Produto;
-import br.com.erick.sms.utils.DBConnection;
-import br.com.erick.sms.model.Compra;
-import br.com.erick.sms.model.Item;
-
-import java.sql.*;
-
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProdutoService {
+import br.com.erick.sms.model.Product;
+import br.com.erick.sms.utils.DBConnection;
+
+public class ProductService {
 
 	private DBConnection dbc;
 	private SaleService ss;
 	private ItemService is;
 
-	public ProdutoService(DBConnection dbc) {
+	public ProductService(DBConnection dbc) {
 		this.dbc = dbc;
 	}
 
-	public void addNewProduct(Produto p) {
-		String sql = "INSERT INTO produto (name, unit_value) values (?, ?);";
+	public void addNewProduct(Product p) {
+		String sql = "INSERT INTO product (name, unit_value) values (?, ?);";
 
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
@@ -34,8 +34,8 @@ public class ProdutoService {
 		}
 	}
 
-	public Produto selectProdutoById(long id) {
-		String sql = "SELECT * FROM produto WHERE produto.id = ?";
+	public Product selectProdutoById(long id) {
+		String sql = "SELECT * FROM product WHERE product.id = ?";
 
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
@@ -48,18 +48,16 @@ public class ProdutoService {
 			double unitValue = rs.getDouble("unit_value");
 			int salesQt = rs.getInt("sales_quantity");
 
-			return new Produto(name, unitValue, salesQt, id);
+			return new Product(name, unitValue, salesQt, id);
 
 		} catch (SQLException e) {
-			System.err.println("Could select the product");
-			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public void updateQuantity(Produto p) {
-		String sql1 = "SELECT SUM(item.quantity) AS soma FROM item WHERE item.produto_id = ?;";
-		String sql2 = "UPDATE produto SET sales_quantity = ? WHERE produto.id = ?";
+	public void updateQuantity(Product p) {
+		String sql1 = "SELECT SUM(item.quantity) AS soma FROM item WHERE item.product_id = ?;";
+		String sql2 = "UPDATE product SET sales_quantity = ? WHERE product.id = ?";
 
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql1);
@@ -78,19 +76,23 @@ public class ProdutoService {
 		}
 	}
 
-	public List<Produto> getProducts() {
-		String sql = "SELECT * FROM produto;";
+	public List<Product> getProducts() {
+		String sql = "SELECT * FROM product;";
 
-		List<Produto> list = new ArrayList<>();
+		List<Product> list = new ArrayList<>();
 
 		ResultSet prods = null;
 		try {
+
 			Statement stmt = this.dbc.getConnection().createStatement();
+
 			prods = stmt.executeQuery(sql);
+
 			while (prods.next()) {
-				list.add(new Produto(prods.getString("name"), prods.getDouble("unit_value"),
+				list.add(new Product(prods.getString("name"), prods.getDouble("unit_value"),
 						prods.getInt("sales_quantity"), prods.getLong("id")));
 			}
+
 		} catch (SQLException e) {
 			System.err.println("Could not get the products");
 		}
@@ -101,7 +103,7 @@ public class ProdutoService {
 	public void setSS(SaleService ss) {
 		this.ss = ss;
 	}
-	
+
 	public void setIS(ItemService is) {
 		this.is = is;
 	}

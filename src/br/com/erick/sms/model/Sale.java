@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import java.time.LocalDateTime;
 
-public class Compra {
+public class Sale {
 
 	private List<Item> itens;
 
@@ -16,7 +16,7 @@ public class Compra {
 
 	private String timestamp;
 
-	public Compra(List<Item> itens) {
+	public Sale(List<Item> itens) {
 		double prodSum = 0;
 		this.itens = itens;
 		if (this.itens == null)
@@ -30,7 +30,7 @@ public class Compra {
 		this.timestamp = LocalDateTime.now().toString();
 	}
 
-	public Compra(List<Item> itens, long id, String date) {
+	public Sale(List<Item> itens, long id, String date) {
 		this.id = id;
 		double prodSum = 0;
 		this.itens = itens;
@@ -45,7 +45,7 @@ public class Compra {
 		this.timestamp = date;
 	}
 	
-	public Compra(double total, long id, String date) {
+	public Sale(double total, long id, String date) {
 		this.id = id;
 		this.total = total;
 		this.timestamp = date;

@@ -2,35 +2,32 @@ package br.com.erick.sms.service;
 
 import java.sql.PreparedStatement;
 
-import br.com.erick.sms.model.Compra;
 import br.com.erick.sms.model.Item;
+import br.com.erick.sms.model.Sale;
 import br.com.erick.sms.utils.DBConnection;
 
 public class ItemService {
-	
+
 	private DBConnection dbc;
 
-	private ProdutoService ps;
-	
+	private ProductService ps;
+
 	private SaleService ss;
-	
+
 	public ItemService(DBConnection dbc) {
 		this.dbc = dbc;
 	}
-	
-	
-	public void setPS(ProdutoService ps) {
+
+	public void setPS(ProductService ps) {
 		this.ps = ps;
 	}
-
 
 	public void setSS(SaleService ss) {
 		this.ss = ss;
 	}
 
-
-	public void addItem(Compra c, Item i) {
-		String sql = "INSERT INTO item (compra_id, produto_id, quantity) values (?, ?, ?)";
+	public void addItem(Sale c, Item i) {
+		String sql = "INSERT INTO item (sale_id, product_id, quantity) values (?, ?, ?)";
 
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);

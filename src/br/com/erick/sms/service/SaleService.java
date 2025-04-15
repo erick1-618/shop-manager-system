@@ -7,9 +7,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.erick.sms.model.Compra;
 import br.com.erick.sms.model.Item;
-import br.com.erick.sms.model.Produto;
+import br.com.erick.sms.model.Product;
+import br.com.erick.sms.model.Sale;
 import br.com.erick.sms.utils.DBConnection;
 
 public class SaleService {
@@ -18,9 +18,9 @@ public class SaleService {
 
 	private ItemService is;
 
-	private ProdutoService ps;
+	private ProductService ps;
 
-	public void setPS(ProdutoService ps) {
+	public void setPS(ProductService ps) {
 		this.ps = ps;
 	}
 
@@ -32,9 +32,9 @@ public class SaleService {
 		this.dbc = dbc;
 	}
 
-	public void addCompra(Compra c) {
-		String sql = "INSERT INTO compra (date, total) values (?, ?)";
-		String sql2 = "SELECT last_value FROM compra_id_seq";
+	public void addSale(Sale c) {
+		String sql = "INSERT INTO sale (date, total) values (?, ?)";
+		String sql2 = "SELECT last_value FROM sale_id_seq";
 
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
@@ -63,17 +63,17 @@ public class SaleService {
 		}
 	}
 
-	public List<Compra> getAllSales() {
-		String sql = "SELECT * FROM compra;";
+	public List<Sale> getAllSales() {
+		String sql = "SELECT * FROM sale;";
 
-		List<Compra> list = new ArrayList<>();
+		List<Sale> list = new ArrayList<>();
 
 		ResultSet sales = null;
 		try {
 			Statement stmt = this.dbc.getConnection().createStatement();
 			sales = stmt.executeQuery(sql);
 			while (sales.next()) {
-				list.add(new Compra(sales.getDouble("total"), sales.getLong("id"), sales.getString("date")));
+				list.add(new Sale(sales.getDouble("total"), sales.getLong("id"), sales.getString("date")));
 			}
 		} catch (SQLException e) {
 			System.err.println("Could not get the sales");
@@ -82,28 +82,29 @@ public class SaleService {
 		return list;
 	}
 
-	public Compra getSaleById(int id) {
-		String sql1 = "SELECT * FROM item i JOIN produto p ON p.id = i.produto_id WHERE i.compra_id = ?";
+	public Sale getSaleById(int id) {
+		String sql1 = "SELECT * FROM item i JOIN product p ON p.id = i.product_id WHERE i.sale_id = ?";
 
-		String sql2 = "SELECT * FROM compra WHERE id = ?";
-		
-		Compra c = null;
-		
+		String sql2 = "SELECT * FROM sale WHERE id = ?";
+
+		Sale c = null;
+
 		List<Item> itens = new ArrayList<>();
 		ResultSet q = null;
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql1);
 			stmt.setInt(1, id);
 			q = stmt.executeQuery();
-			while(q.next()) {
-				itens.add(new Item(new Produto(q.getString("name"), q.getDouble("unit_value"), q.getInt("sales_quantity"), q.getLong("id")),q.getInt("quantity")));
+			while (q.next()) {
+				itens.add(new Item(new Product(q.getString("name"), q.getDouble("unit_value"),
+						q.getInt("sales_quantity"), q.getLong("id")), q.getInt("quantity")));
 			}
 			stmt = dbc.getConnection().prepareStatement(sql2);
 			stmt.setInt(1, id);
 			q = stmt.executeQuery();
-			q.next();
-			c = new Compra(itens, id, q.getString("date"));
-		}catch(SQLException e) {
+			if(!q.next()) return null;
+			c = new Sale(itens, id, q.getString("date"));
+		} catch (SQLException e) {
 			System.err.println("Could not get the sale");
 		}
 		return c;

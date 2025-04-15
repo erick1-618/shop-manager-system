@@ -71,12 +71,12 @@ public class DBConnection {
 
 	private void initializeDatabase() {
 
-		String produtoInitializer = "CREATE TABLE IF NOT EXISTS produto ( " + "id serial primary key,"
-				+ " name varchar(100) not null," + " unit_value real not null," + " sales_quantity integer default 0);";
+		String produtoInitializer = "CREATE TABLE IF NOT EXISTS product ( " + "id serial primary key,"
+				+ " name varchar(50) not null," + " unit_value real not null," + " sales_quantity integer default 0);";
 
-		String compraInitializer = "CREATE TABLE IF NOT EXISTS compra (id serial primary key, date varchar(100) not null, total real);";
+		String compraInitializer = "CREATE TABLE IF NOT EXISTS sale (id serial primary key, date varchar(100) not null, total real);";
 
-		String itemInitializer = "CREATE TABLE IF NOT EXISTS item ( compra_id serial, produto_id serial, quantity integer not null, primary key(compra_id, produto_id), foreign key(compra_id) references compra(id), foreign key(produto_id) references produto(id));";
+		String itemInitializer = "CREATE TABLE IF NOT EXISTS item ( id serial primary key, sale_id serial, product_id serial, quantity integer not null, foreign key(sale_id) references sale(id), foreign key(product_id) references product(id));";
 
 		try {
 			Statement stmt = conn.createStatement();
@@ -93,8 +93,8 @@ public class DBConnection {
 
 	public void resetDatabase() {
 		String sql = "DROP TABLE IF EXISTS item;";
-		String sq2 = "DROP TABLE IF EXISTS compra;";
-		String sq3 = "DROP TABLE IF EXISTS produto;";
+		String sq2 = "DROP TABLE IF EXISTS sale;";
+		String sq3 = "DROP TABLE IF EXISTS product;";
 		try {
 			Statement stmt = conn.createStatement();
 			stmt.execute(sql);
