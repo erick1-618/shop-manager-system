@@ -10,16 +10,23 @@ public class Product {
 
 	private long id;
 
-	public Product(String name, double unitValue, int salesQuantity, long id) {
+	private int inStock;
+
+	private boolean isActive;
+
+	public Product(String name, double unitValue, int inStock, int salesQuantity, long id, boolean isActive) {
 		this.id = id;
 		this.name = name;
 		this.unitValue = unitValue;
 		this.salesQuantity = salesQuantity;
+		this.inStock = inStock;
+		this.isActive = isActive;
 	}
 
-	public Product(String name, double unitValue) {
+	public Product(String name, double unitValue, int inStock) {
 		this.name = name;
 		this.unitValue = unitValue;
+		this.inStock = inStock;
 	}
 
 	public String getName() {
@@ -40,5 +47,13 @@ public class Product {
 
 	public long getId() {
 		return this.id;
+	}
+	
+	public int getInStock() {
+		return inStock;
+	}
+
+	public boolean isActive() {
+		return isActive;
 	}
 }

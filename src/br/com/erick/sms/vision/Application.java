@@ -16,7 +16,7 @@ public class Application {
 
 		fmsg();
 
-		while (!opt.equals("10")) {
+		while (!opt.equals("12")) {
 			opt = scan.nextLine();
 			redirect(opt);
 		}
@@ -70,9 +70,35 @@ public class Application {
 			System.out.print("\033[H\033[2J");
 			saleDetails();
 			break;
+		case "10":
+			System.out.print("\033[H\033[2J");
+			addStock();
+			break;
+		case "11":
+			System.out.print("\033[H\033[2J");
+			removeProduct();
+			break;
 		default:
 			return;
 		}
+	}
+
+	private static void removeProduct() {
+		Scanner s = new Scanner(System.in);
+		prodList();
+		System.out.println("Enter the product ID to remove");
+		String id = s.nextLine();
+		control.removeProduct(id);
+	}
+
+	private static void addStock() {
+		prodList();
+		Scanner s = new Scanner(System.in);
+		System.out.println("Enter the product id to add");
+		String id = s.nextLine();
+		System.out.println("Enter the amount to add");
+		String qt = s.nextLine();
+		control.addStock(id, qt);
 	}
 
 	private static void removeFromCart() {
@@ -80,7 +106,7 @@ public class Application {
 		Scanner s = new Scanner(System.in);
 		System.out.println("Enter the product id to remove: ");
 		String id = s.nextLine();
-		
+
 		control.removeFromCart(id);
 	}
 
@@ -90,7 +116,9 @@ public class Application {
 		String name = s.nextLine();
 		System.out.println("Enter the product value:");
 		String value = s.nextLine();
-		control.addNewProduct(name, value);
+		System.out.println("Enter quantity in stock");
+		String stock = s.nextLine();
+		control.addNewProduct(name, value, stock);
 	}
 
 	private static void addToCart() {
@@ -103,7 +131,7 @@ public class Application {
 
 		control.addToCart(id, qt);
 	}
-	
+
 	private static void saleDetails() {
 		salesList();
 		System.out.println("Enter the sale ID: ");
@@ -115,34 +143,34 @@ public class Application {
 
 	private static void prodList() {
 		List<String> prods = control.getAllProducts();
-		System.out.println("---------------------------- PRODUCTS LIST -----------------------------");
+		System.out.println("---------------------- PRODUCTS LIST ----------------------------------------------------------------------------------------------------------\n");
 		prods.forEach(p -> System.out.println(p + "\n"));
 	}
 
 	private static void salesList() {
 		List<String> sales = control.getAllSales();
-		System.out.println("--------------------------- SALES LIST ---------------------------------");
-		sales.forEach(s -> System.out.println(s +"\n"));
+		System.out.println("------------------------- SALES LIST ------------------------------\n");
+		sales.forEach(s -> System.out.println(s + "\n"));
 	}
-	
+
 	private static void cartList() {
 		List<String> cart = control.getCart();
-		System.out.println("---------------------------- ITENS IN THE CART ------------------------------");
+		System.out.println("----------------------- ITENS IN THE CART ----------------------------------------------------------------------------------------------------\n");
 		cart.forEach(c -> System.out.println(c + "\n"));
 		System.out.println("===== TOTAL: R$ " + control.getCartTotal());
 	}
 
 	private static void fmsg() {
 		System.out.println("\n>>>>>>>> SHOP MANAGER SYSTEM"
-				+ "\n\nA simple solution for store products information and register sales!\n" + 
-				"\nv0.2 by Erick Andrade\n"
-				+ "\n>> Type 0 for help\n");
+				+ "\n\nA simple solution for store products information and register sales!\n"
+				+ "\nv0.2 by Erick Andrade\n" + "\n>> Type 0 for help\n");
 	}
 
 	private static void commands() {
-		System.out.println("\n[0] - Help	\n[1] - Add new product   \n[2] - Add product to the cart   \n[3] - Remove product of the cart"
-				+ "\n[4] - See the cart    \n[5] - Close the cart            \n[6] - Clear the cart"
-				+ "\n[7] - See all products 	\n[8] - See all sales	 \n[9] - See sale details"
-				+ "\n[10] - Exit");
+		System.out.println(
+				"\n[0] - Help	\n[1] - Add new product   \n[2] - Add product to the cart   \n[3] - Remove product of the cart"
+						+ "\n[4] - See the cart    \n[5] - Close the cart            \n[6] - Clear the cart"
+						+ "\n[7] - See all products 	\n[8] - See all sales	 \n[9] - See sale details"
+						+ "\n[10] - Restock product	\n[11] - Remove product	\n[12] - Exit");
 	}
 }

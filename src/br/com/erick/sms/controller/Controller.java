@@ -89,8 +89,8 @@ public class Controller {
 		}
 
 		for (int i = 0; i < cart.size(); i++) {
-			cartStr.add(String.format("%-5d | %-50s | R$ %12.2f | %-5d", i, cart.get(i).getProduto().getName(),
-					cart.get(i).getProduto().getUnitValue(), cart.get(i).getQuantity()));
+			cartStr.add(String.format("%-7d | %-50s | R$ %20.2f | %-7d", i, cart.get(i).getProduto().getName(),
+					cart.get(i).getProduto().getUnitValue() * cart.get(i).getQuantity(), cart.get(i).getQuantity()));
 		}
 
 		return cartStr;
@@ -116,9 +116,19 @@ public class Controller {
 
 			if (p == null)
 				throw new NullPointerException();
+			
+			if(!p.isActive())
+				throw new NullPointerException();
 
 			if (qtprod <= 0)
 				throw new NumberFormatException();
+
+			if (p.getInStock() < qtprod) {
+				System.err.println("No enough quantity of this product");
+				return;
+			}
+
+			this.ps.subtractStock(qtprod, prodID);
 
 			this.cart.add(new Item(p, qtprod));
 
@@ -135,6 +145,8 @@ public class Controller {
 		try {
 
 			int prodID = Integer.parseInt(id);
+
+			this.ps.addStock(cart.get(prodID).getQuantity(), cart.get(prodID).getProduto().getId());
 
 			this.cart.remove(prodID);
 
@@ -163,16 +175,18 @@ public class Controller {
 
 // ================== PRODUCTS
 
-	public void addNewProduct(String name, String value) {
+	public void addNewProduct(String name, String value, String qt) {
 
 		try {
 
 			double v = Double.parseDouble(value.replace(',', '.'));
 
+			int stock = Integer.parseInt(qt);
+
 			if (!name.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 ]*$") || v <= 0 || name.length() > 50)
 				throw new RuntimeException();
 
-			Product p = new Product(name, v);
+			Product p = new Product(name, v, stock);
 			this.ps.addNewProduct(p);
 
 		} catch (RuntimeException e) {
@@ -193,7 +207,8 @@ public class Controller {
 			return products;
 
 		for (Product p : prodQ) {
-			line = String.format("%-5s | %-50s | R$ %12.2f", p.getId(), p.getName(), p.getUnitValue());
+			line = String.format("%-5s | %-50s | R$ %12.2f | %-30d | %-30d", p.getId(), p.getName(), p.getUnitValue(),
+					p.getSalesQuantity(), p.getInStock());
 			products.add(line);
 		}
 
@@ -201,6 +216,62 @@ public class Controller {
 			products.add("There's no product registered");
 
 		return products;
+	}
+	
+	public void addStock(String id, String qt) {
+		try {
+
+			long prodID = Long.parseLong(id);
+
+			Product p = ps.selectProdutoById(prodID);
+
+			int qtprod = Integer.parseInt(qt);
+
+			if (p == null)
+				throw new NullPointerException();
+			
+			if(!p.isActive())
+				throw new NullPointerException();
+
+			if (qtprod <= 0)
+				throw new NumberFormatException();
+
+			this.ps.addStock(qtprod, prodID);
+
+		} catch (NumberFormatException | NullPointerException e) {
+			if (e instanceof NullPointerException)
+				System.err.println("There's no product with id " + id);
+			else if (e instanceof NumberFormatException)
+				System.err.println("Invalid quantity values");
+		}
+	}
+	
+	public void removeProduct(String id) {
+		try {
+
+			long prodID = Long.parseLong(id);
+
+			Product p = ps.selectProdutoById(prodID);
+			
+			if(cart.stream().anyMatch(prod -> prod.getProduto().getId() == p.getId())) {
+				System.err.println("There's a product with id " + id + " in the cart");
+				return;
+			}
+			
+			if (p == null)
+				throw new NullPointerException();
+			
+			if(!p.isActive())
+				throw new NullPointerException();
+			
+			this.ps.deleteProduct(prodID);
+
+		} catch (NumberFormatException | NullPointerException e) {
+			if (e instanceof NullPointerException)
+				System.err.println("There's no product with id " + id);
+			else if (e instanceof NumberFormatException)
+				System.err.println("Invalid ID");
+		}
 	}
 
 //================================ SALES
@@ -216,7 +287,7 @@ public class Controller {
 			return sales;
 
 		for (Sale c : salesQ) {
-			line = String.format("%-5d | %-25s | R$ %12.2f", c.getId(),
+			line = String.format("%-5d | %-25s | R$ %-20.2f", c.getId(),
 					c.getTimestamp().substring(0, 10).replace('-', '/'), c.getTotal());
 			sales.add(line);
 		}
@@ -234,8 +305,8 @@ public class Controller {
 			if (c == null)
 				throw new RuntimeException();
 			String date = c.getTimestamp().substring(0, 10).replace('-', '/');
-			sale += "Sale " + c.getId() + " realized in: " + date
-					+ "\n-------------------- ITENS -----------------------";
+			sale += "\nSale " + c.getId() + " realized in: " + date
+					+ "\n\n----------------- ITENS -------------------------------------------------------------------";
 			for (Item i : c.getItens()) {
 				sale += "\n" + String.format("%-40s | R$ %-20.2f | %-10d", i.getProduto().getName(),
 						i.getProduto().getUnitValue() * i.getQuantity(), i.getQuantity());
@@ -246,10 +317,6 @@ public class Controller {
 		}
 		return sale;
 	}
-
-	/**
-	 * I have no proud in this
-	 */
 
 	private void interConnectServices() {
 		this.is.setPS(ps);

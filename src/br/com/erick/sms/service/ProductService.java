@@ -21,12 +21,13 @@ public class ProductService {
 	}
 
 	public void addNewProduct(Product p) {
-		String sql = "INSERT INTO product (name, unit_value) values (?, ?);";
+		String sql = "INSERT INTO product (name, unit_value, in_stock) values (?, ?, ?);";
 
 		try {
 			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
 			stmt.setDouble(2, p.getUnitValue());
 			stmt.setString(1, p.getName());
+			stmt.setInt(3, p.getInStock());
 			stmt.execute();
 		} catch (SQLException e) {
 			System.err.println("Could not add the new product");
@@ -47,8 +48,10 @@ public class ProductService {
 			String name = rs.getString("name");
 			double unitValue = rs.getDouble("unit_value");
 			int salesQt = rs.getInt("sales_quantity");
+			int stock = rs.getInt("in_stock");
+			boolean active = rs.getBoolean("active");
 
-			return new Product(name, unitValue, salesQt, id);
+			return new Product(name, unitValue, stock, salesQt, id, active);
 
 		} catch (SQLException e) {
 			return null;
@@ -89,8 +92,9 @@ public class ProductService {
 			prods = stmt.executeQuery(sql);
 
 			while (prods.next()) {
-				list.add(new Product(prods.getString("name"), prods.getDouble("unit_value"),
-						prods.getInt("sales_quantity"), prods.getLong("id")));
+				if(prods.getBoolean("active") == false) continue;
+				list.add(new Product(prods.getString("name"), prods.getDouble("unit_value"), prods.getInt("in_stock"),
+						prods.getInt("sales_quantity"), prods.getLong("id"), prods.getBoolean("active")));
 			}
 
 		} catch (SQLException e) {
@@ -100,11 +104,59 @@ public class ProductService {
 		return list;
 	}
 
+	public void subtractStock(int qt, long id) {
+
+		String sql = "UPDATE product SET in_stock = in_stock - ? WHERE id = ?";
+
+		try {
+			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
+
+			stmt.setInt(1, qt);
+			stmt.setLong(2, id);
+
+			stmt.execute();
+
+		} catch (SQLException e) {
+			System.err.println("Could not update the quantity");
+		}
+	}
+
+	public void addStock(int qt, long id) {
+
+		String sql = "UPDATE product SET in_stock = in_stock + ? WHERE id = ?";
+
+		try {
+			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
+
+			stmt.setInt(1, qt);
+			stmt.setLong(2, id);
+
+			stmt.execute();
+
+		} catch (SQLException e) {
+			System.err.println("Could not update the quantity");
+		}
+	}
+
 	public void setSS(SaleService ss) {
 		this.ss = ss;
 	}
 
 	public void setIS(ItemService is) {
 		this.is = is;
+	}
+
+	public void deleteProduct(long prodID) {
+		String sql = "UPDATE product SET active = false where id = ?";
+
+		try {
+			PreparedStatement stmt = this.dbc.getConnection().prepareStatement(sql);
+			stmt.setLong(1, prodID);
+
+			stmt.execute();
+
+		} catch (SQLException e) {
+			System.err.println("Could not delete the product");
+		}
 	}
 }

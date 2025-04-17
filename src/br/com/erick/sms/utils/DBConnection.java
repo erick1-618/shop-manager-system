@@ -21,10 +21,10 @@ public class DBConnection {
 		open();
 		initializeDatabase();
 	}
-	
+
 	public Connection getConnection() {
 		try {
-			if(this.conn.isClosed()) {
+			if (this.conn.isClosed()) {
 				return null;
 			}
 			return this.conn;
@@ -72,7 +72,9 @@ public class DBConnection {
 	private void initializeDatabase() {
 
 		String produtoInitializer = "CREATE TABLE IF NOT EXISTS product ( " + "id serial primary key,"
-				+ " name varchar(50) not null," + " unit_value real not null," + " sales_quantity integer default 0);";
+				+ " name varchar(50) not null," + " unit_value real not null,"
+				+ " sales_quantity integer default 0, in_stock integer default 0,"
+				+ " active boolean default true);";
 
 		String compraInitializer = "CREATE TABLE IF NOT EXISTS sale (id serial primary key, date varchar(100) not null, total real);";
 
@@ -100,9 +102,9 @@ public class DBConnection {
 			stmt.execute(sql);
 			stmt.execute(sq2);
 			stmt.execute(sq3);
-			
+
 			initializeDatabase();
-			
+
 			System.out.println("Database restarted");
 		} catch (SQLException e) {
 			System.err.println("Error: Could not restart the database");

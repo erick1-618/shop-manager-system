@@ -24,5 +24,4 @@ replay_pid*
 
 run.sh
 
-/resources/
-/test/
+config.properties

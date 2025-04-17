@@ -96,13 +96,16 @@ public class SaleService {
 			stmt.setInt(1, id);
 			q = stmt.executeQuery();
 			while (q.next()) {
-				itens.add(new Item(new Product(q.getString("name"), q.getDouble("unit_value"),
-						q.getInt("sales_quantity"), q.getLong("id")), q.getInt("quantity")));
+				itens.add(new Item(
+						new Product(q.getString("name"), q.getDouble("unit_value"), q.getInt("in_stock"),
+								q.getInt("sales_quantity"), q.getLong("id"), q.getBoolean("active")),
+						q.getInt("quantity")));
 			}
 			stmt = dbc.getConnection().prepareStatement(sql2);
 			stmt.setInt(1, id);
 			q = stmt.executeQuery();
-			if(!q.next()) return null;
+			if (!q.next())
+				return null;
 			c = new Sale(itens, id, q.getString("date"));
 		} catch (SQLException e) {
 			System.err.println("Could not get the sale");
