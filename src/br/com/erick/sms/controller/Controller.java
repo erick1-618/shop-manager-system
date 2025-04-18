@@ -2,6 +2,7 @@ package br.com.erick.sms.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -89,9 +90,10 @@ public class Controller {
 		}
 
 		for (int i = 0; i < cart.size(); i++) {
-			cartStr.add(String.format("%-7d | %-50s | R$ %20.2f | %-7d", i, cart.get(i).getProduto().getName(),
+			cartStr.add(String.format("%12d | %-50s | R$ %-20.2f | %-7d", i, cart.get(i).getProduto().getName(),
 					cart.get(i).getProduto().getUnitValue() * cart.get(i).getQuantity(), cart.get(i).getQuantity()));
 		}
+		cartStr.add("===== TOTAL: R$ " + getCartTotal());
 
 		return cartStr;
 	}
@@ -124,19 +126,17 @@ public class Controller {
 				throw new NumberFormatException();
 
 			if (p.getInStock() < qtprod) {
-				System.err.println("No enough quantity of this product");
-				return;
+				throw new InvalidParameterException();
 			}
 
 			this.ps.subtractStock(qtprod, prodID);
 
 			this.cart.add(new Item(p, qtprod));
 
-		} catch (NumberFormatException | NullPointerException e) {
-			if (e instanceof NullPointerException)
-				System.err.println("There's no product with id " + id);
-			else if (e instanceof NumberFormatException)
-				System.err.println("Invalid quantity values");
+		} catch (Exception e) {
+			if(e instanceof InvalidParameterException)
+				throw new InvalidParameterException();
+			throw new RuntimeException();
 		}
 	}
 
@@ -151,16 +151,14 @@ public class Controller {
 			this.cart.remove(prodID);
 
 		} catch (NumberFormatException | IndexOutOfBoundsException e) {
-			System.err.println("Enter a valid ID");
+			throw new RuntimeException();
 		}
 	}
 
 	public void closeCart() {
 
-		if (cart.isEmpty()) {
-			System.out.println("The cart is empty");
-			return;
-		}
+		if (cart.isEmpty())
+			throw new NullPointerException();
 
 		Sale c = new Sale(cart);
 
@@ -183,7 +181,7 @@ public class Controller {
 
 			int stock = Integer.parseInt(qt);
 
-			if (!name.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 ]*$") || v <= 0 || name.length() > 50)
+			if (!name.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9 ]*$") || v <= 0 || name.length() > 50 || stock < 0)
 				throw new RuntimeException();
 
 			Product p = new Product(name, v, stock);
@@ -239,10 +237,7 @@ public class Controller {
 			this.ps.addStock(qtprod, prodID);
 
 		} catch (NumberFormatException | NullPointerException e) {
-			if (e instanceof NullPointerException)
-				System.err.println("There's no product with id " + id);
-			else if (e instanceof NumberFormatException)
-				System.err.println("Invalid quantity values");
+			throw new RuntimeException();
 		}
 	}
 	
@@ -253,10 +248,8 @@ public class Controller {
 
 			Product p = ps.selectProdutoById(prodID);
 			
-			if(cart.stream().anyMatch(prod -> prod.getProduto().getId() == p.getId())) {
-				System.err.println("There's a product with id " + id + " in the cart");
-				return;
-			}
+			if(cart.stream().anyMatch(prod -> prod.getProduto().getId() == p.getId()))
+				throw new InvalidParameterException();
 			
 			if (p == null)
 				throw new NullPointerException();
@@ -266,14 +259,19 @@ public class Controller {
 			
 			this.ps.deleteProduct(prodID);
 
-		} catch (NumberFormatException | NullPointerException e) {
-			if (e instanceof NullPointerException)
-				System.err.println("There's no product with id " + id);
-			else if (e instanceof NumberFormatException)
-				System.err.println("Invalid ID");
+		} catch (NumberFormatException | NullPointerException | InvalidParameterException e) {
+			if(e instanceof InvalidParameterException)
+				throw new InvalidParameterException();
+			throw new RuntimeException();
 		}
 	}
 
+	public void addExamples() {
+		List<Product> prods = DataExamples.productExamples();
+		prods.forEach(p -> addNewProduct(p.getName(), "" + p.getUnitValue(), "" + p.getInStock()));
+		System.out.println("[ INFO ] Examples added");
+	}
+	
 //================================ SALES
 
 	public List<String> getAllSales() {
@@ -298,20 +296,17 @@ public class Controller {
 		return sales;
 	}
 
-	public String getSaleDet(String id) {
-		String sale = "";
+	public List<String> getSaleDet(String id) {
+		List<String> sale = new ArrayList<>();
 		try {
 			Sale c = ss.getSaleById(Integer.parseInt(id));
 			if (c == null)
 				throw new RuntimeException();
 			String date = c.getTimestamp().substring(0, 10).replace('-', '/');
-			sale += "\nSale " + c.getId() + " realized in: " + date
-					+ "\n\n----------------- ITENS -------------------------------------------------------------------";
 			for (Item i : c.getItens()) {
-				sale += "\n" + String.format("%-40s | R$ %-20.2f | %-10d", i.getProduto().getName(),
-						i.getProduto().getUnitValue() * i.getQuantity(), i.getQuantity());
+				sale.add(String.format("%-40s | R$ %-20.2f | %-10d", i.getProduto().getName(),
+						i.getProduto().getUnitValue() * i.getQuantity(), i.getQuantity()));
 			}
-			sale += "\n=====TOTAL: R$ " + String.format("%.2f", c.getTotal());
 		} catch (RuntimeException e) {
 			System.err.println("Enter a valid id");
 		}

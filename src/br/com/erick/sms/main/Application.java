@@ -1,29 +1,32 @@
-package br.com.erick.sms.vision;
+package br.com.erick.sms.main;
 
 import java.util.List;
 import java.util.Scanner;
 
 import br.com.erick.sms.controller.Controller;
+import br.com.erick.sms.vision.MainWindow;
 
 public class Application {
 
 	private static Controller control;
 
 	public static void main(String[] args) {
-		control = Controller.getInstance();
-		Scanner scan = new Scanner(System.in);
-		String opt = "";
-
-		fmsg();
-
-		while (!opt.equals("12")) {
-			opt = scan.nextLine();
-			redirect(opt);
-		}
-
-		control.closeConn();
-
-		System.out.println("Bye!");
+//		control = Controller.getInstance();
+//		Scanner scan = new Scanner(System.in);
+//		String opt = "";
+//
+//		fmsg();
+//
+//		while (!opt.equals("12")) {
+//			opt = scan.nextLine();
+//			redirect(opt);
+//		}
+//
+//		control.closeConn();
+//
+//		System.out.println("Bye!");
+		
+		new MainWindow();
 	}
 
 	private static void redirect(String option) {
@@ -137,8 +140,8 @@ public class Application {
 		System.out.println("Enter the sale ID: ");
 		Scanner s = new Scanner(System.in);
 		String id = s.nextLine();
-		String sale = control.getSaleDet(id);
-		System.out.println(sale);
+		List<String> sale = control.getSaleDet(id);
+		sale.forEach(sl -> System.out.println(sl));
 	}
 
 	private static void prodList() {
