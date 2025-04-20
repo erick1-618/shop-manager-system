@@ -115,11 +115,11 @@ public class MainWindow extends JFrame {
 				lastPressed = buttons[1];
 				List<String> cart = ctrl.getCart();
 				contentPanel.removeAll();
-				
+
 				cart.forEach(c -> {
 					JLabel label = new JLabel(c);
 					label.setFont(new Font("Monospaced", Font.PLAIN, 14));
-					contentPanel.add(label);					
+					contentPanel.add(label);
 				});
 				contentPanel.revalidate();
 				contentPanel.repaint();
@@ -140,11 +140,11 @@ public class MainWindow extends JFrame {
 					String id = s.trim().substring(0, 1);
 
 					List<String> saleDet = null;
-					
-					if(!id.substring(0, 1).equals("T")) {
+
+					if (!id.substring(0, 1).equals("T")) {
 						saleDet = ctrl.getSaleDet(id);
 					}
-					
+
 					JPanel vendaPanel = new JPanel();
 					vendaPanel.setLayout(new BoxLayout(vendaPanel, BoxLayout.Y_AXIS));
 					vendaPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -160,7 +160,7 @@ public class MainWindow extends JFrame {
 					detalhesPanel.setBackground(new java.awt.Color(240, 240, 240));
 					detalhesPanel.setVisible(false);
 
-					if(saleDet != null) {						
+					if (saleDet != null) {
 						for (String sd : saleDet) {
 							JLabel l = new JLabel(sd);
 							l.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -199,7 +199,9 @@ public class MainWindow extends JFrame {
 					JOptionPane.showMessageDialog(contentPanel, ex.getMessage());
 				}
 				tf.setText("");
-				lastPressed.doClick();
+
+				if (lastPressed != null)
+					lastPressed.doClick();
 			}
 		});
 		return tf;

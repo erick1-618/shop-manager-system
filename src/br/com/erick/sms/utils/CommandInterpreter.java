@@ -3,11 +3,13 @@ package br.com.erick.sms.utils;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 
+import javax.swing.JOptionPane;
+
 import br.com.erick.sms.controller.Controller;
 
 public class CommandInterpreter {
 
-	private static final String DCEM = "Invalid Command. Press Help button for commands avaliable";
+	private static final String DCEM = "Invalid Command. Type help for avaliable commands";
 
 	private Controller ctrl;
 
@@ -41,30 +43,45 @@ public class CommandInterpreter {
 		case "clear":
 			clearCart(payload);
 			break;
+		case "help":
+			showHelpMessage(payload);
+			break;
 		default:
 			throw new RuntimeException(DCEM);
 		}
 	}
 
+	private void showHelpMessage(String[] payload) {
+		String message = "new <product name> <unitary value> <stock avaliable> : Create a new product and insert into database"
+				+ "\ndel <product id1> <product id2> ... : Delete a product from database"
+				+ "\ncart <product id> <quantity> : Add a product into cart"
+				+ "\nrem <product id1> <product id2> ... : remove a product from cart (insert the correspondent id of the cart section)"
+				+ "\nclose : close the cart and register the sale"
+				+ "\nadd <product id> <quantity> : add stock of the specified product"
+				+ "\nclear : remove all the products of the cart"
+				+ "\nhelp : show this help message";
+		JOptionPane.showMessageDialog(null, message);
+	}
+
 	private void addStock(String[] payload) {
 		try {
-			if(payload.length != 2)
+			if (payload.length != 2)
 				throw new RuntimeException();
-			
+
 			ctrl.addStock(payload[0], payload[1]);
-			
-		}catch(RuntimeException e) {
+
+		} catch (RuntimeException e) {
 			throw new RuntimeException(DCEM);
 		}
 	}
 
 	private void closeCart(String[] payload) {
 		try {
-			if(payload.length != 0) 
+			if (payload.length != 0)
 				throw new RuntimeException();
 			ctrl.closeCart();
-		}catch(RuntimeException e) {
-			if(e instanceof NullPointerException)
+		} catch (RuntimeException e) {
+			if (e instanceof NullPointerException)
 				throw new RuntimeException("The cart is empty");
 			throw new RuntimeException(DCEM);
 		}
@@ -123,13 +140,13 @@ public class CommandInterpreter {
 			throw new RuntimeException(DCEM);
 		}
 	}
-	
+
 	private void clearCart(String[] payload) {
 		try {
-			if(payload.length != 0) 
+			if (payload.length != 0)
 				throw new RuntimeException();
 			ctrl.clearCart();
-		}catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			throw new RuntimeException(DCEM);
 		}
