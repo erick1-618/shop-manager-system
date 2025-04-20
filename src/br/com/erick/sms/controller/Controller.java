@@ -15,6 +15,7 @@ import br.com.erick.sms.model.Product;
 import br.com.erick.sms.service.ItemService;
 import br.com.erick.sms.service.ProductService;
 import br.com.erick.sms.service.SaleService;
+import br.com.erick.sms.utils.CartUtils;
 import br.com.erick.sms.utils.DBConnection;
 import br.com.erick.sms.utils.DataExamples;
 
@@ -88,10 +89,13 @@ public class Controller {
 		if (cart.isEmpty()) {
 			cartStr.add("The cart is empty.");
 		}
+		
+		List<Item> compressed = CartUtils.compressCart(cart);
+		cart = compressed;
 
-		for (int i = 0; i < cart.size(); i++) {
-			cartStr.add(String.format("%12d | %-50s | R$ %-20.2f | %-7d", i, cart.get(i).getProduto().getName(),
-					cart.get(i).getProduto().getUnitValue() * cart.get(i).getQuantity(), cart.get(i).getQuantity()));
+		for (int i = 0; i < compressed.size(); i++) {
+			cartStr.add(String.format("%12d | %-50s | R$ %-20.2f | %-7d", i, compressed.get(i).getProduto().getName(),
+					compressed.get(i).getProduto().getUnitValue() * compressed.get(i).getQuantity(), compressed.get(i).getQuantity()));
 		}
 		cartStr.add("===== TOTAL: R$ " + getCartTotal());
 
@@ -160,7 +164,9 @@ public class Controller {
 		if (cart.isEmpty())
 			throw new NullPointerException();
 
-		Sale c = new Sale(cart);
+		List<Item> compressed = CartUtils.compressCart(cart);
+ 		
+		Sale c = new Sale(compressed);
 
 		ss.addSale(c);
 
@@ -168,7 +174,11 @@ public class Controller {
 	}
 
 	public void clearCart() {
-		this.cart.clear();
+		cart = CartUtils.compressCart(cart);
+		for(int i = 0; i < cart.size(); i++) {
+			this.ps.addStock(cart.get(i).getQuantity(), cart.get(i).getProduto().getId());
+		}
+		cart.clear();
 	}
 
 // ================== PRODUCTS
@@ -205,7 +215,7 @@ public class Controller {
 			return products;
 
 		for (Product p : prodQ) {
-			line = String.format("%-5s | %-50s | R$ %12.2f | %-30d | %-30d", p.getId(), p.getName(), p.getUnitValue(),
+			line = String.format("%-10d | %-50s | R$ %12.2f | %12d | %12d", p.getId(), p.getName(), p.getUnitValue(),
 					p.getSalesQuantity(), p.getInStock());
 			products.add(line);
 		}

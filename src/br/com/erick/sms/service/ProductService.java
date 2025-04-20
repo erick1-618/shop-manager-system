@@ -80,7 +80,7 @@ public class ProductService {
 	}
 
 	public List<Product> getProducts() {
-		String sql = "SELECT * FROM product;";
+		String sql = "SELECT * FROM product ORDER BY id DESC;";
 
 		List<Product> list = new ArrayList<>();
 

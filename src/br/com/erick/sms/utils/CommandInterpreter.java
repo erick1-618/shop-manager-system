@@ -38,6 +38,9 @@ public class CommandInterpreter {
 		case "add":
 			addStock(payload);
 			break;
+		case "clear":
+			clearCart(payload);
+			break;
 		default:
 			throw new RuntimeException(DCEM);
 		}
@@ -117,6 +120,17 @@ public class CommandInterpreter {
 				ctrl.removeFromCart(payload[i]);
 			}
 		} catch (Exception e) {
+			throw new RuntimeException(DCEM);
+		}
+	}
+	
+	private void clearCart(String[] payload) {
+		try {
+			if(payload.length != 0) 
+				throw new RuntimeException();
+			ctrl.clearCart();
+		}catch(RuntimeException e) {
+			e.printStackTrace();
 			throw new RuntimeException(DCEM);
 		}
 	}

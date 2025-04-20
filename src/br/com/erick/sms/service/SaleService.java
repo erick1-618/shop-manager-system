@@ -64,7 +64,7 @@ public class SaleService {
 	}
 
 	public List<Sale> getAllSales() {
-		String sql = "SELECT * FROM sale;";
+		String sql = "SELECT * FROM sale ORDER BY id DESC;";
 
 		List<Sale> list = new ArrayList<>();
 
