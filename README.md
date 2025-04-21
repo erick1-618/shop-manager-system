@@ -11,10 +11,7 @@
 - Sales processing
 - Sales per product tracking
 - Stock control
-
-### Upcomming Features
-
-- UI for better experience
+- UI for see products, cart and sales  
 
 ## Prerequisites
 
@@ -41,7 +38,7 @@ Run the installation script:
 ```
 ./install.sh
 ```
-This will compile the source files and ask your credenctials to connect to postgres database, it will also ask the name of the DB, for create a new one. Make sure there's not a databse with the given name.  
+This will compile the source files and ask your credentials to connect to postgres database, it will also ask the name of the DB, for create a new one. Make sure there's not a database with the given name.  
 
 For running the application in Linux OS:
 
@@ -49,13 +46,48 @@ For running the application in Linux OS:
 ./run.sh
 ```
 
-Type 0 to see the possible commands. 
-
 These are the steps for manual installation and execution:
 
 1. First, you need to configure **config.prop** in **/resources**. Create a file with this name, and follow the **config-example** template.
 2. Then, you must compile the classes. In CMD, on the root directory of the repository, execute: `for /R src %i in (*.java) do javac -cp "lib/*" -d bin %i`
 3. For execution: `java -cp "bin;lib/*" br.com.erick.sms.vision.Application`
+
+## How to use
+
+In the JFrame, you will have a text field to entry the avaliable commands:
+
+1. Create a new product with the given name, value and stock
+
+	`` new product_name unitary_value stock_avaliable``
+	
+2. Add the product with the given name and quantity in the cart. You can also click in the product.
+
+	``cart product_id quantity ``
+
+3. Delete the product with the given id
+
+	``del produt_id1 product_id2 ... product_idn``
+
+4. Remove the product with the given id of the cart (the id in the cart section)
+
+	``rem product_id1 product_id2 ... product_idn``
+
+5. Close the cart and create the sale
+
+	``close``
+
+6. Clear the cart
+
+	``clear``
+
+7. Add product units
+
+	``add product_id quantity``
+
+8. See the avaliable commands
+	
+	``help``
+
 
 ## License
 
