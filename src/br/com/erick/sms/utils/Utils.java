@@ -3,11 +3,12 @@ package br.com.erick.sms.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.erick.sms.model.Item;
 import br.com.erick.sms.model.Product;
 
-public class DataExamples {
-
-	private DataExamples() {}
+public class Utils {
+	
+	private Utils() {}
 	
 	private static List<Product> products = new ArrayList<>();
 	
@@ -23,8 +24,21 @@ public class DataExamples {
 		products.add(new Product("Monitor", 300, 10));
 		products.add(new Product("Fone bluetooth", 100, 10));
 	}
-	
-	public static List<Product> productExamples(){
+
+	public static List<Item> compressCart(List<Item> cart) {
+		List<Item> compressed = new ArrayList<>();
+		cart.forEach(i -> {
+			if (compressed.contains(i)) {
+				Item it = compressed.get(compressed.indexOf(i));
+				it.setQuantity(it.getQuantity() + i.getQuantity());
+			} else {
+				compressed.add(i);
+			}
+		});
+		return compressed;
+	}
+
+	public static List<Product> productExamples() {
 		return new ArrayList<Product>(products);
 	}
 }

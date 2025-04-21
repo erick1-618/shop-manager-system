@@ -26,15 +26,15 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private Controller ctrl;
+	protected Controller ctrl;
 
-	private JPanel contentPanel;
+	protected JPanel contentPanel;
 
-	private JTextField textField;
+	protected JTextField textField;
 
-	private JButton lastPressed;
+	protected JButton lastPressed;
 
-	private CommandInterpreter interpreter;
+	protected CommandInterpreter interpreter;
 
 	public MainWindow() {
 
@@ -52,11 +52,11 @@ public class MainWindow extends JFrame {
 		JScrollPane scrollPanel = new JScrollPane(contentPanel);
 		scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-		this.textField = getTextField();
+		this.textField = ComponentsInitializer.getTextField(this);
 
 		JButton b = new JButton();
 
-		JButton[] panelButtons = getPanelButtons();
+		JButton[] panelButtons = ComponentsInitializer.getPanelButtons(this);
 
 		buttonsPanel.add(panelButtons[0]);
 		buttonsPanel.add(panelButtons[1]);
@@ -70,140 +70,5 @@ public class MainWindow extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(new Dimension(800, 600));
 		this.setVisible(true);
-	}
-
-	private JButton[] getPanelButtons() {
-		JButton[] buttons = new JButton[3];
-
-		buttons[0] = new JButton("Products");
-
-		buttons[0].addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				lastPressed = buttons[0];
-				List<String> products = ctrl.getAllProducts();
-				contentPanel.removeAll();
-				products.forEach(p -> {
-					JButton b = new JButton(p);
-
-					b.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							if (!b.getText().substring(b.getText().length() - 12).trim().equals("0")) {
-								interpreter.interpret("cart " + p.substring(0, 10).trim() + " 1");
-								lastPressed.doClick();
-							}
-						}
-					});
-
-					b.setFont(new Font("Monospaced", Font.PLAIN, 14));
-					b.setBackground(Color.lightGray);
-					contentPanel.add(b);
-				});
-				contentPanel.revalidate();
-				contentPanel.repaint();
-			}
-		});
-
-		buttons[1] = new JButton("Cart");
-
-		buttons[1].addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				lastPressed = buttons[1];
-				List<String> cart = ctrl.getCart();
-				contentPanel.removeAll();
-
-				cart.forEach(c -> {
-					JLabel label = new JLabel(c);
-					label.setFont(new Font("Monospaced", Font.PLAIN, 14));
-					contentPanel.add(label);
-				});
-				contentPanel.revalidate();
-				contentPanel.repaint();
-			}
-		});
-
-		buttons[2] = new JButton("Sales");
-
-		buttons[2].addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				lastPressed = buttons[2];
-				List<String> sales = ctrl.getAllSales();
-				contentPanel.removeAll();
-				sales.forEach(s -> {
-
-					String id = s.trim().substring(0, 1);
-
-					List<String> saleDet = null;
-
-					if (!id.substring(0, 1).equals("T")) {
-						saleDet = ctrl.getSaleDet(id);
-					}
-
-					JPanel vendaPanel = new JPanel();
-					vendaPanel.setLayout(new BoxLayout(vendaPanel, BoxLayout.Y_AXIS));
-					vendaPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-					JButton vendaButton = new JButton(s);
-					vendaButton.setBackground(Color.lightGray);
-					vendaButton.setHorizontalAlignment(SwingConstants.LEFT);
-					vendaButton.setFont(new Font("Monospaced", Font.PLAIN, 14));
-					vendaButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, vendaButton.getPreferredSize().height));
-
-					JPanel detalhesPanel = new JPanel();
-					detalhesPanel.setLayout(new BoxLayout(detalhesPanel, BoxLayout.Y_AXIS));
-					detalhesPanel.setBackground(new java.awt.Color(240, 240, 240));
-					detalhesPanel.setVisible(false);
-
-					if (saleDet != null) {
-						for (String sd : saleDet) {
-							JLabel l = new JLabel(sd);
-							l.setFont(new Font("Monospaced", Font.PLAIN, 14));
-							detalhesPanel.add(l);
-						}
-					}
-
-					vendaButton.addActionListener(ev -> {
-						detalhesPanel.setVisible(!detalhesPanel.isVisible());
-						vendaPanel.revalidate();
-						vendaPanel.repaint();
-					});
-
-					vendaPanel.add(vendaButton);
-					vendaPanel.add(detalhesPanel);
-					contentPanel.add(vendaPanel);
-				});
-				contentPanel.revalidate();
-				contentPanel.repaint();
-			}
-		});
-
-		return buttons;
-	}
-
-	private JTextField getTextField() {
-		JTextField tf = new JTextField();
-		tf.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String txt = tf.getText();
-				try {
-					interpreter.interpret(txt);
-				} catch (RuntimeException ex) {
-					JOptionPane.showMessageDialog(contentPanel, ex.getMessage());
-				}
-				tf.setText("");
-
-				if (lastPressed != null)
-					lastPressed.doClick();
-			}
-		});
-		return tf;
 	}
 }

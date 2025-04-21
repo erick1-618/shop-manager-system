@@ -3,21 +3,18 @@ package br.com.erick.sms.controller;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import br.com.erick.sms.model.Sale;
 import br.com.erick.sms.model.Item;
 import br.com.erick.sms.model.Product;
+import br.com.erick.sms.model.Sale;
 import br.com.erick.sms.service.ItemService;
 import br.com.erick.sms.service.ProductService;
 import br.com.erick.sms.service.SaleService;
-import br.com.erick.sms.utils.CartUtils;
 import br.com.erick.sms.utils.DBConnection;
-import br.com.erick.sms.utils.DataExamples;
+import br.com.erick.sms.utils.Utils;
 
 public class Controller {
 
@@ -90,7 +87,7 @@ public class Controller {
 			cartStr.add("The cart is empty.");
 		}
 		
-		List<Item> compressed = CartUtils.compressCart(cart);
+		List<Item> compressed = Utils.compressCart(cart);
 		cart = compressed;
 
 		for (int i = 0; i < compressed.size(); i++) {
@@ -164,7 +161,7 @@ public class Controller {
 		if (cart.isEmpty())
 			throw new NullPointerException();
 
-		List<Item> compressed = CartUtils.compressCart(cart);
+		List<Item> compressed = Utils.compressCart(cart);
  		
 		Sale c = new Sale(compressed);
 
@@ -174,7 +171,7 @@ public class Controller {
 	}
 
 	public void clearCart() {
-		cart = CartUtils.compressCart(cart);
+		cart = Utils.compressCart(cart);
 		for(int i = 0; i < cart.size(); i++) {
 			this.ps.addStock(cart.get(i).getQuantity(), cart.get(i).getProduto().getId());
 		}
@@ -277,7 +274,7 @@ public class Controller {
 	}
 
 	public void addExamples() {
-		List<Product> prods = DataExamples.productExamples();
+		List<Product> prods = Utils.productExamples();
 		prods.forEach(p -> addNewProduct(p.getName(), "" + p.getUnitValue(), "" + p.getInStock()));
 		System.out.println("[ INFO ] Examples added");
 	}
